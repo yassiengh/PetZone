@@ -11,12 +11,12 @@ const DB = process.env.DATABASE.replace(
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
-    useCreateIndex: true,
-    userFindAndModify: true,
   })
   .then((con) => {
-    console.log(con);
+    console.log('Connected to MongoDB!!!');
   });
+
+
 
 const port = 3000;
 const server = app.listen(port, () => {
