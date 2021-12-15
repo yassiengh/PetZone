@@ -78,11 +78,18 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  emailVerifyToken: String,
+  emailVerifyExpires: Date,
   active: {
     type: Boolean,
     default: true,
     select: false,
   },
+  verified: {
+    type: Boolean,
+    default: false,
+    select: false,
+  }
   
 });
 
@@ -118,6 +125,7 @@ userSchema.methods.correctPassword = async function (
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
@@ -145,6 +153,21 @@ userSchema.methods.createPasswordResetToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
+};
+
+userSchema.methods.createEmailVerifyToken = function () {
+  const verifyToken = crypto.randomBytes(32).toString("hex");
+
+  this.emailVerifyToken = crypto
+    .createHash("sha256")
+    .update(verifyToken)
+    .digest("hex");
+
+  console.log({ verifyToken }, this.emailVerifyToken);
+
+  this.emailVerifyExpires = Date.now() + 10 * 60 * 1000;
+
+  return verifyToken;
 };
 
 const User = mongoose.model("User", userSchema);
