@@ -5,10 +5,11 @@ const User = require("./../models/userModel");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const sendEmail = require("./../utils/email");
+const serviceProvider = require("./serviceProviderController");
 
-const signToken = id => {
+const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN
+    expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
 
@@ -18,38 +19,28 @@ const createSendToken = (user, statusCode, res) => {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
-    httpOnly: true
+    httpOnly: true,
   };
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
-  res.cookie('jwt', token, cookieOptions);
+  res.cookie("jwt", token, cookieOptions);
 
   // Remove password from output
   user.password = undefined;
 
   res.status(statusCode).json({
-    status: 'success',
+    status: "success",
     token,
     data: {
-      user
-    }
+      user,
+    },
   });
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
-    userName: req.body.userName,
-    nationalID: req.body.nationalID,
-    city: req.body.city,
-    country: req.body.country,
-    address: req.body.address,
-    phoneNumber: req.body.phoneNumber,
-    role: req.body.role,
-  });
+  const newUser = await User.create(req.body);
+
+  const sp = await serviceProvider.createServiceProvider(req);
 
   createSendToken(newUser, 201, res);
 });
@@ -81,14 +72,14 @@ exports.protect = catchAsync(async (req, res, next) => {
   let token;
   if (
     req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
+    req.headers.authorization.startsWith("Bearer")
   ) {
-    token = req.headers.authorization.split(' ')[1];
+    token = req.headers.authorization.split(" ")[1];
   }
 
   if (!token) {
     return next(
-      new AppError('You are not logged in! Please log in to get access.', 401)
+      new AppError("You are not logged in! Please log in to get access.", 401)
     );
   }
 
@@ -100,7 +91,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   if (!currentUser) {
     return next(
       new AppError(
-        'The user belonging to this token does no longer exist.',
+        "The user belonging to this token does no longer exist.",
         401
       )
     );
@@ -109,7 +100,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   // 4) Check if user changed password after the token was issued
   if (currentUser.changedPasswordAfter(decoded.iat)) {
     return next(
-      new AppError('User recently changed password! Please log in again.', 401)
+      new AppError("User recently changed password! Please log in again.", 401)
     );
   }
 
@@ -123,7 +114,7 @@ exports.restrictTo = (...roles) => {
     // roles ['admin', 'lead-guide']. role='user'
     if (!roles.includes(req.user.role)) {
       return next(
-        new AppError('You do not have permission to perform this action', 403)
+        new AppError("You do not have permission to perform this action", 403)
       );
     }
 
@@ -195,18 +186,17 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   await user.save();
 
-
   // 4) Log the user in, send JWT
   createSendToken(user, 200, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   // 1) Get user from collection
-  const user = await User.findById(req.user.id).select('+password');
+  const user = await User.findById(req.user.id).select("+password");
 
   // 2) Check if POSTed current password is correct
   if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
-    return next(new AppError('Your current password is wrong.', 401));
+    return next(new AppError("Your current password is wrong.", 401));
   }
 
   // 3) If so, update password
@@ -229,7 +219,7 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
   // 2) Generate the random reset token
   const verifyToken = user.createEmailVerifyToken();
   await user.save({ validateBeforeSave: false });
-  
+
   // 3) Send it to user's email
   const resetURL = `${req.protocol}://${req.get(
     "host"
@@ -278,11 +268,9 @@ exports.emailVerfication = catchAsync(async (req, res, next) => {
     return next(new AppError("Token is invalid or has expired", 400));
   }
   // 3) Update verified property for the user
-  user.verified = true,
-  user.emailVerifyToken = undefined;
+  (user.verified = true), (user.emailVerifyToken = undefined);
   user.emailVerifyExpires = undefined;
   await user.save({ validateBeforeSave: false });
-
 
   // 4) Log the user in, send JWT
   createSendToken(user, 200, res);

@@ -89,8 +89,11 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
     select: false,
-  }
-  
+  },
+  serviceProvider: {
+    type: mongoose.Schema.ObjectId,
+    ref: "ServiceProvider",
+  },
 });
 
 userSchema.pre("save", async function (next) {
@@ -115,7 +118,7 @@ userSchema.pre("save", function (next) {
 userSchema.pre(/^find/, function (next) {
   //point to the current query
   this.find({ active: { $ne: false } });
-  next()
+  next();
 });
 
 userSchema.methods.correctPassword = async function (
@@ -124,7 +127,6 @@ userSchema.methods.correctPassword = async function (
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
-
 
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
