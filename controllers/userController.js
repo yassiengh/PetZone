@@ -43,7 +43,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     "country",
     "address",
     "city",
-    "phoneNumber"
+    "phoneNumber",
+    "serviceProvider"
   );
 
   // 3) Update user document

@@ -5,7 +5,6 @@ const User = require("./../models/userModel");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const sendEmail = require("./../utils/email");
-const serviceProvider = require("./serviceProviderController");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -39,8 +38,6 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create(req.body);
-
-  const sp = await serviceProvider.createServiceProvider(req);
 
   createSendToken(newUser, 201, res);
 });

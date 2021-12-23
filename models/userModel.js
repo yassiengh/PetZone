@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
+const AppError = require("./../utils/appError");
 const userSchema = new mongoose.Schema({
   userName: {
     type: String,
@@ -91,11 +92,64 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   serviceProvider: {
-    type: mongoose.Schema.ObjectId,
-    ref: "ServiceProvider",
+    type: {
+      type: String,
+      enum: ["Pet Carer", "Vet", "Trainer"],
+    },
+    rating: {
+      type: Number,
+      default: 0,
+    },
+    workingHours: {
+      startingHour: {
+        type: Number,
+      },
+      finishingHour: {
+        type: Number,
+      },
+      maxNumberClients: {
+        type: Number,
+      },
+    },
+    offDays: [
+      {
+        type: String,
+        enum: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      },
+    ],
+    ratePerHour: {
+      type: Number,
+      default: 0,
+    },
+    landLine: {
+      type: String,
+    },
+    verificationDocuments: [
+      {
+        type: String,
+      },
+    ],
   },
 });
 
+userSchema.pre("save", function (next) {
+  if (this.role == "service provider") {
+    if (
+      this.serviceProvider.type == undefined ||
+      this.serviceProvider.workingHours.finishingHour == undefined ||
+      this.serviceProvider.workingHours.startingHour == undefined
+    ) {
+      return next(new AppError("Service provider data missing", 400));
+    }
+    if (
+      this.serviceProvider.type == "Vet" &&
+      this.serviceProvider.workingHours.maxNumberClients == undefined
+    ) {
+      return next(new AppError("Vet data missing", 400));
+    }
+  }
+  next();
+});
 userSchema.pre("save", async function (next) {
   // Only run this function if password was actually modified
   if (!this.isModified("password")) return next();
