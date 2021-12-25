@@ -11,7 +11,7 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
+  const users = await User.find().populate("POA.childPet");
 
   // SEND RESPONSE
   res.status(200).json({
