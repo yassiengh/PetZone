@@ -11,9 +11,9 @@ const hpp = require("hpp");
 const userRouter = require("./routes/userRoutes");
 const petRouter = require("./routes/petRoutes");
 const petAdouptionRouter = require("./routes/petAdoptionRoutes");
-const petOfferAdouptionRouter = require("./routes/offerAdoption");
+const petOfferAdouptionRouter = require("./routes/offerAdoptionRoutes");
 const petBreedingRouter = require("./routes/petBreedingRoutes");
-const petOfferBreedingRouter = require("./routes/offerBreeding");
+const petOfferBreedingRouter = require("./routes/offerBreedingRoutes");
 
 const app = express();
 
