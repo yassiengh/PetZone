@@ -43,17 +43,17 @@ const userSchema = new mongoose.Schema({
   },
   country: {
     type: String,
-    required: [true, "Please confirm your country"],
+    required: [true, "Please provide a country"],
     lowercase: true,
   },
   address: {
     type: String,
-    required: [true, "Please confirm your address"],
+    required: [true, "Please provide an address"],
     lowercase: true,
   },
   city: {
     type: String,
-    required: [true, "Please confirm your city"],
+    required: [true, "Please provide a city"],
     lowercase: true,
   },
   phoneNumber: {

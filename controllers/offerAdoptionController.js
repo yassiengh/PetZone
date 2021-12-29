@@ -71,7 +71,13 @@ exports.offerPetAdoption = catchAsync(async (req, res, next) => {
 
 exports.deleteAdoptionOffer = catchAsync(async (req, res, next) => {
   const adoptedOffer = await adoptionOffers.findById(req.params.id);
-
+  const User = await user.findById(req.user._id)
+  if(!User.POA.childPet.includes(breedingOffer.id))
+  { 
+    return next(
+      new AppError("You cant remove this offer")
+    );
+  }
   if (!adoptedOffer || adoptedOffer.offerAdoption === false) {
     return next(
       new AppError("No pet found with that ID or Not offered for adoption", 404)

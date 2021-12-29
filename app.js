@@ -12,7 +12,6 @@ const userRouter = require("./routes/userRoutes");
 const petRouter = require("./routes/petRoutes");
 const petAdouptionRouter = require("./routes/petAdoptionRoutes");
 const petOfferAdouptionRouter = require("./routes/offerAdoptionRoutes");
-const petBreedingRouter = require("./routes/petBreedingRoutes");
 const petOfferBreedingRouter = require("./routes/offerBreedingRoutes");
 
 const app = express();
@@ -74,7 +73,6 @@ app.use("/api/v1/pets", petRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/adopt", petAdouptionRouter);
 app.use("/api/v1/offerAdoption", petOfferAdouptionRouter);
-app.use("/api/v1/breeding", petBreedingRouter);
 app.use("/api/v1/offerBreeding", petOfferBreedingRouter);
 
 // app.all("*", (req, res, next) => {

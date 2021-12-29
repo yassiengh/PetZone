@@ -1,4 +1,5 @@
 const breedingOffers = require("../models/petModel");
+const user = require("../models/userModel");
 const APIFeatures = require("../utils/apiFeatures");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
@@ -43,15 +44,23 @@ exports.getBreedingOffer = catchAsync(async (req, res, next) => {
 });
 
 exports.offerPetBreeding = catchAsync(async (req, res, next) => {
-  const breedingOffer = await breedingOffers.findByIdAndUpdate(req.params.id);
-
+  const breedingOffer = await breedingOffers.findById(req.params.id);
+  const User = await user.findById(req.user._id)
+  if(!User.POA.childPet.includes(breedingOffer.id))
+  { 
+    return next(
+      new AppError("You cant offer pet  you are not own for breeding")
+    );
+  }
   if (!breedingOffer || breedingOffer.offerBreeding === true) {
     return next(
       new AppError("No pet found with that ID or Not offered for adoption", 404)
     );
   }
-
+  breedingOffer.breeding = true;
   breedingOffer.offerBreeding = true;
+  await breedingOffers.findByIdAndUpdate(req.params.id, breedingOffer);
+
   res.status(201).json({
     status: "success",
     pet: breedingOffer,
@@ -60,6 +69,13 @@ exports.offerPetBreeding = catchAsync(async (req, res, next) => {
 
 exports.deleteBreedingOffer = catchAsync(async (req, res, next) => {
   const breedingOffer = await breedingOffers.findByIdAndUpdate(req.params.id);
+  const User = await user.findById(req.user._id)
+  if(!User.POA.childPet.includes(breedingOffer.id))
+  { 
+    return next(
+      new AppError("You cant remove this offer")
+    );
+  }
 
   if (!breedingOffer || breedingOffer.offerBreeding === false) {
     return next(
@@ -67,6 +83,7 @@ exports.deleteBreedingOffer = catchAsync(async (req, res, next) => {
     );
   }
   breedingOffer.offerBreeding = false;
+  await breedingOffers.findByIdAndUpdate(req.params.id, breedingOffer);
   res.status(204).json({
     status: "success",
   });
