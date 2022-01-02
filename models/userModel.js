@@ -89,7 +89,6 @@ const userSchema = new mongoose.Schema({
   verified: {
     type: Boolean,
     default: false,
-    select: false,
   },
   serviceProvider: {
     type: {
