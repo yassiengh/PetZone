@@ -56,7 +56,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect email or password", 401));
   }
 
-  if(req.body.verified === false) {
+  if(user.verified === false) {
     return next(new AppError("Please active your email ", 402));
   }
 
