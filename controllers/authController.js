@@ -56,8 +56,8 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect email or password", 401));
   }
 
-  if (req.body.verified === false) {
-    return next(new AppError("Please activate your email ", 401));
+  if (user.verified === false) {
+    return next(new AppError("Please active your email ", 402));
   }
 
   // 3) If everything ok, send token to client
@@ -135,7 +135,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     "host"
   )}/api/v1/users/resetPassword/${resetToken}`;
 
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+  const message = `Forgot your password? Enter this code to reset your password: ${resetToken}.\nIf you didn't forget your password, please ignore this email!`;
 
   try {
     await sendEmail({
@@ -160,6 +160,29 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
+exports.VerifyToken = catchAsync(async (req, res, next) => {
+  // 1) Get user based on the token
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  // 2) check If token has not expired, and there is user
+  if (!user) {
+    return next(new AppError("Token is invalid or has expired", 400));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Token is valid!",
+  });
+});
+
 exports.resetPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on the token
   const hashedToken = crypto
@@ -172,7 +195,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     passwordResetExpires: { $gt: Date.now() },
   });
 
-  // 2) If token has not expired, and there is user, set the new password
+  // 2) check If token has not expired, and there is user
   if (!user) {
     return next(new AppError("Token is invalid or has expired", 400));
   }

@@ -1,4 +1,6 @@
 const adoptionOffers = require("../models/petModel");
+const user = require("../models/userModel");
+
 const APIFeatures = require("../utils/apiFeatures");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
@@ -43,8 +45,15 @@ exports.getAdoptedOffer = catchAsync(async (req, res, next) => {
 });
 
 exports.offerPetAdoption = catchAsync(async (req, res, next) => {
-  const adoptedOffer = await adoptionOffers.findByIdAndUpdate(req.params.id);
-
+  const adoptedOffer = await adoptionOffers.findById(req.params.id);
+  const User = await user.findById(req.user._id)
+  if(!User.POA.childPet.includes(adoptedOffer.id))
+  { 
+    return next(
+      new AppError("You cant offer pet for adoption you are not own")
+    );
+  }
+  
   if (!adoptedOffer || adoptedOffer.offerAdoption === true) {
     return next(
       new AppError("No pet found with that ID or Not offered for adoption", 404)
@@ -52,6 +61,8 @@ exports.offerPetAdoption = catchAsync(async (req, res, next) => {
   }
 
   adoptedOffer.offerAdoption = true;
+  await adoptionOffers.findByIdAndUpdate(req.params.id, adoptedOffer);
+
   res.status(201).json({
     status: "success",
     pet: adoptedOffer,
@@ -59,14 +70,22 @@ exports.offerPetAdoption = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteAdoptionOffer = catchAsync(async (req, res, next) => {
-  const adoptedOffer = await adoptionOffers.findByIdAndUpdate(req.params.id);
-
+  const adoptedOffer = await adoptionOffers.findById(req.params.id);
+  const User = await user.findById(req.user._id)
+  if(!User.POA.childPet.includes(breedingOffer.id))
+  { 
+    return next(
+      new AppError("You cant remove this offer")
+    );
+  }
   if (!adoptedOffer || adoptedOffer.offerAdoption === false) {
     return next(
       new AppError("No pet found with that ID or Not offered for adoption", 404)
     );
   }
   adoptedOffer.offerAdoption = false;
+  await adoptionOffers.findByIdAndUpdate(req.params.id, adoptedOffer);
+
   res.status(204).json({
     status: "success",
   });
