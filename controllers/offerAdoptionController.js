@@ -17,11 +17,7 @@ exports.getAllAdoptionOffers = catchAsync(async (req, res, next) => {
   const adoptedOffer = await features.query;
   // SEND RESPONSE
   res.status(200).json({
-    status: "success",
-    results: adoptedOffer.length,
-    data: {
-        adoptedOffer,
-    },
+    adoptedOffer
   });
 });
 
