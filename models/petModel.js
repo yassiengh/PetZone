@@ -53,6 +53,12 @@ const petSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    history: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Vaccine",
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },

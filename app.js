@@ -14,6 +14,7 @@ const petRouter = require("./routes/petRoutes");
 const petAdouptionRouter = require("./routes/petAdoptionRoutes");
 const petOfferAdouptionRouter = require("./routes/offerAdoptionRoutes");
 const petOfferBreedingRouter = require("./routes/offerBreedingRoutes");
+const vaccinationRouter = require("./routes/vaccineRoutes");
 
 const app = express();
 
@@ -77,7 +78,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/adopt", petAdouptionRouter);
 app.use("/api/v1/offerAdoption", petOfferAdouptionRouter);
 app.use("/api/v1/offerBreeding", petOfferBreedingRouter);
-
+app.use("/api/v1/vaccination",vaccinationRouter );
 // app.all("*", (req, res, next) => {
 //   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 // });

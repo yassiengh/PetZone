@@ -9,7 +9,14 @@ const filterObj = (obj, ...allowedFields) => {
   });
   return newObj;
 };
-
+exports.getMe = catchAsync(async (req, res, next) => {
+  const currentUser = await User.findById(req.user.id)
+  res.status(200).json({
+    data: {
+      currentUser,
+    },
+  });
+})
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find().populate("POA.childPet");
 

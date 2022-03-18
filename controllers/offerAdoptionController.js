@@ -17,11 +17,7 @@ exports.getAllAdoptionOffers = catchAsync(async (req, res, next) => {
   const adoptedOffer = await features.query;
   // SEND RESPONSE
   res.status(200).json({
-    status: "success",
-    results: adoptedOffer.length,
-    data: {
-        adoptedOffer,
-    },
+    adoptedOffer
   });
 });
 
@@ -72,7 +68,7 @@ exports.offerPetAdoption = catchAsync(async (req, res, next) => {
 exports.deleteAdoptionOffer = catchAsync(async (req, res, next) => {
   const adoptedOffer = await adoptionOffers.findById(req.params.id);
   const User = await user.findById(req.user._id)
-  if(!User.POA.childPet.includes(breedingOffer.id))
+  if(!User.POA.childPet.includes(adoptedOffer.id))
   { 
     return next(
       new AppError("You cant remove this offer")
