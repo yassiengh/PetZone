@@ -7,6 +7,7 @@ const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
+const cookie_parser = require("cookie-parser");
 
 const userRouter = require("./routes/userRoutes");
 const petRouter = require("./routes/petRoutes");
@@ -17,6 +18,8 @@ const petOfferBreedingRouter = require("./routes/offerBreedingRoutes");
 const app = express();
 
 //1) Global middelwares
+
+app.use(cookie_parser());
 
 //set securety HTTP headers
 app.use(helmet());
