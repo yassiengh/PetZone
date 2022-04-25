@@ -10,13 +10,13 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 exports.getMe = catchAsync(async (req, res, next) => {
-  const currentUser = await User.findById(req.user.id)
+  const currentUser = await User.findById(req.user.id);
   res.status(200).json({
     data: {
       currentUser,
     },
   });
-})
+});
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find().populate("POA.childPet");
 
@@ -78,24 +78,6 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 });
 
 exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
-exports.createUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
-exports.deleteUser = (req, res) => {
   res.status(500).json({
     status: "error",
     message: "This route is not yet defined!",

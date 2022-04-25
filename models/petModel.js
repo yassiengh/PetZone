@@ -53,10 +53,20 @@ const petSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    checkedVaccines: {
+      type: Boolean,
+      default: false,
+    },
     history: [
       {
-        type: mongoose.Schema.ObjectId,
-        ref: "Vaccine",
+        vaccine: {
+          type: mongoose.Schema.ObjectId,
+          ref: "Vaccine",
+        },
+        lastTimeTaken: {
+          type: String,
+          default: 0,
+        },
       },
     ],
   },
