@@ -69,6 +69,18 @@ const petSchema = new mongoose.Schema(
         },
       },
     ],
+    desiredVaccines: [
+      {
+        vaccine: {
+          type: mongoose.Schema.ObjectId,
+          ref: "Vaccine",
+        },
+        timeRemaining: {
+          type: String,
+          default: 0,
+        },
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },

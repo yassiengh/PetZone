@@ -1,6 +1,11 @@
 const User = require("./../models/userModel");
+const multer = require("multer");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
+
+const upload = multer({ dest: "public/img/users" });
+
+exports.uploadUserPhoto = upload.single("photo");
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -10,12 +15,18 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 exports.getMe = catchAsync(async (req, res, next) => {
+  console.log("C:\\Users\\yassi\\Desktop\\PetZone\\default.jpg");
   const currentUser = await User.findById(req.user.id);
-  res.status(200).json({
-    data: {
-      currentUser,
-    },
-  });
+  // sendfile(`${__dirname}/./default.jpg`).
+  // res.status(200).json({
+  //   data: {
+  //     currentUser,
+  //   },
+  // });
+  res
+    .status(201)
+    .json({ status: "success" })
+    .sendFile("C:\\Users\\yassi\\Desktop\\PetZone\\default.jpg");
 });
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find().populate("POA.childPet");
@@ -54,6 +65,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     "serviceProvider"
   );
 
+  if (req.file) filteredBody.profilePicture = req.file.filename;
+
   // 3) Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
@@ -74,6 +87,14 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   res.status(204).json({
     status: "success",
     data: null,
+  });
+});
+
+exports.getAllVets = catchAsync(async (req, res, next) => {
+  const vets = await User.find({ "serviceProvider.type": "Vet" });
+
+  res.status(200).json({
+    data: vets,
   });
 });
 

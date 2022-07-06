@@ -20,6 +20,7 @@ const createSendToken = (user, statusCode, res) => {
     ),
     httpOnly: true,
   };
+  // development is not https so wont send token
   if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
   res.cookie("jwt", token, cookieOptions);
@@ -64,10 +65,10 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-exports.logout = catchAsync(async (req, res ,next) => {
-  res.cookie('jwt','',{ maxage : 1} );
-  res.redirect('/')
-})
+exports.logout = catchAsync(async (req, res, next) => {
+  res.cookie("jwt", "", { maxage: 1 });
+  res.redirect("/");
+});
 
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it's there
@@ -77,6 +78,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
 
   if (!token) {

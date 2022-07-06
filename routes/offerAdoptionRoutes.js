@@ -6,8 +6,8 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(authController.protect, offerAdoptionController.getAllAdoptionOffers)
-  // .post(authController.protect, adoptionController.adoptPet);
+  .get(authController.protect, offerAdoptionController.getAllAdoptionOffers);
+// .post(authController.protect, adoptionController.adoptPet);
 
 router
   .route("/:id")

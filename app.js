@@ -14,7 +14,10 @@ const petRouter = require("./routes/petRoutes");
 const petAdouptionRouter = require("./routes/petAdoptionRoutes");
 const petOfferAdouptionRouter = require("./routes/offerAdoptionRoutes");
 const petOfferBreedingRouter = require("./routes/offerBreedingRoutes");
+const vaccinationEnumRouter = require("./routes/vaccineEnumRoutes");
 const vaccinationRouter = require("./routes/vaccineRoutes");
+const forumsRouter = require("./routes/forumsRoutes");
+const bookingRouter = require("./routes/bookingRoutes");
 
 const app = express();
 
@@ -78,7 +81,10 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/adopt", petAdouptionRouter);
 app.use("/api/v1/offerAdoption", petOfferAdouptionRouter);
 app.use("/api/v1/offerBreeding", petOfferBreedingRouter);
-app.use("/api/v1/vaccination",vaccinationRouter );
+app.use("/api/v1/vaccinationDB", vaccinationEnumRouter);
+app.use("/api/v1/vaccination", vaccinationRouter);
+app.use("/api/v1/forums", forumsRouter);
+app.use("/api/v1/booking", bookingRouter);
 // app.all("*", (req, res, next) => {
 //   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 // });

@@ -1,91 +1,96 @@
-const Vaccines = require("../models/vaccineModel");
 const Pet = require("../models/petModel");
 const APIFeatures = require("../utils/apiFeatures");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+const http = require("http");
 
-exports.addNewVacc = catchAsync(async (req, res, next) => {
-  const newVacc = await Vaccines.create(req.body);
+exports.createVaccinationHistory = catchAsync(async (req, res, next) => {
+  const pet = await Pet.findById(req.body.petID);
+  const history = req.body.history;
+  history.forEach((vaccine) => {
+    let obj = {};
+
+    if (vaccine.date) {
+      obj["vaccine"] = vaccine.id;
+      obj["lastTimeTaken"] = vaccine.date;
+    } else {
+      obj["vaccine"] = vaccine.id;
+    }
+
+    pet.history.push(obj);
+  });
+  pet.checkedVaccines = true;
+  await Pet.findByIdAndUpdate(req.body.petID, pet);
+
   res.status(200).json({
     status: "success",
-    data: newVacc,
+    data: pet,
   });
 });
-exports.getAllVaccines = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(Vaccines.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const vaccine = await features.query;
 
-  // SEND RESPONSE
+exports.availableVaccines = catchAsync(async (req, res) => {
+  var rawData = "";
+  const promise = () => {
+    return new Promise((resolve) => {
+      http.get("http://127.0.0.1:3000/api/v1/vaccination/", function (res) {
+        res.on("data", (chunk) => {
+          rawData += chunk;
+        });
+        res.on("end", () => {
+          resolve(rawData);
+        });
+      });
+    });
+  };
+  rawData = await promise();
+  rawData = JSON.parse(rawData);
+  const pet = await Pet.findById(req.query.id).populate("history.vaccine");
+  const history = pet.history;
+
+  let availableVaccines = [];
+  let vaccineHistory = [];
+  history.forEach((vaccine) => {
+    vaccineHistory.push(vaccine.vaccine.id);
+  });
+  rawData.data.vaccine.forEach((obj) => {
+    if (!vaccineHistory.includes(obj._id)) {
+      availableVaccines.push(obj);
+    }
+  });
   res.status(200).json({
     status: "success",
-    results: vaccine.length,
-    data: {
-      vaccine,
-    },
+    data: availableVaccines,
   });
 });
 
-// exports.getVaccine = catchAsync(async (req, res, next) => {
-//   const Vaccine = await Vaccines.findById(req.params.id);
+exports.getDesiredVaccines = catchAsync(async (req, res) => {
+  petID = req.query.petID;
+  const pet = await Pet.findById(petID).populate("desiredVaccines.vaccine");
+  res.status(200).json({
+    status: "success",
+    data: pet.desiredVaccines,
+  });
+});
+exports.fillDesiredVaccines = catchAsync(async (req, res) => {
+  petID = req.body.petID;
+  const pet = await Pet.findById(petID).populate("desiredVaccines.vaccine");
+  desiredVaccinesList = pet.desiredVaccines;
+  vaccinesToAdd = req.body.desiredVaccines;
+  let vaccineListIDs = [];
+  desiredVaccinesList.forEach((desiredVacc) => {
+    vaccineListIDs.push(desiredVacc.vaccine.id);
+  });
+  console.log(vaccineListIDs, vaccinesToAdd);
+  vaccinesToAdd.forEach((vacc) => {
+    if (!vaccineListIDs.includes(vacc)) {
+      desiredVaccinesList.push({ vaccine: vacc.toString() });
+    }
+  });
 
-//   if (!Vaccine) {
-//     return next(new AppError("No Vaccine found with that ID", 404));
-//   }
-
-//   res.status(200).json({
-//     status: "success",
-//     data: {
-//       Vaccine,
-//     },
-//   });
-// });
-
-// exports.addVaccineToHistory = catchAsync(async (req, res, next) => {});
-
-// exports.checkVaccinationHistory = catchAsync(async (req, res, next) => {
-//   const pet = await Pet.findById(req.params.id);
-//   if (!pet) {
-//     return next(new AppError("No pet found with that ID", 404));
-//   }
-//   if (!pet.history) {
-//     return next(new AppError("No history found for that pet", 404));
-//   }
-//   res.status(200).json({
-//     status: "success",
-//     data: {
-//       pet: history,
-//     },
-//   });
-// });
-// // el function de bt3ml eh ? el if condition kda sa7 ?
-// // el model me7tag yt2m nosen , wel controller bardo
-// exports.getAllAvailableVaccines = catchAsync(async (req, res, next) => {
-//   const vaccines = getAllVaccines();
-//   const AvailableVacc = [];
-//   const pet = await Pet.findById(req.params.id);
-
-//   for (let i = 0; i < vaccines.length; i++) {
-//     if (!pet.history.includes(vaccines[i]._id)) {
-//       AvailableVacc.add(vaccines[i]);
-//     }
-//   }
-//   //const VacHistory = checkVaccinationHistory(req.params.id);
-//   // for (let i = 0; i < VacHistory.length; i++) {
-//   //   for (let j = 0; j < vaccines.length; j++) {
-//   //     if (vaccines[j] != VacHistory[i]) {
-//   //       AvailableVacc.add(vaccines[j]);
-//   //     }
-//   //   }
-//   // }
-
-//   res.status(200).json({
-//     status: "success",
-//     data: {
-//       AvailableVacc,
-//     },
-//   });
-// });
+  pet.desiredVaccines = desiredVaccinesList;
+  await Pet.findByIdAndUpdate(petID, pet);
+  res.status(200).json({
+    status: "success",
+    data: pet,
+  });
+});

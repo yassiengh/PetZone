@@ -5,15 +5,14 @@ const authController = require("../controllers/authController");
 const router = express.Router();
 
 router
-  .route("/")
-  .get(vaccineController.getAllVaccines)
-  .post(authController.protect, vaccineController.addNewVacc);
+  .route("/VaccinationHistory")
+  .post(vaccineController.createVaccinationHistory);
 
-// router.get('/getAllAvailableVaccines', authController.protect, vaccineController.getAllAvailableVaccines)
-// router.get('/checkHistory', authController.protect, vaccineController.checkVaccinationHistory)
-// router.patch('/addVaccineToHistory/:id', authController.protect, vaccineController.addVaccineToHistory)
-// router
-//   .route('/:id')
-//   .get(authController.protect, vaccineController.getVaccine)
+router.route("/availableVaccines").get(vaccineController.availableVaccines);
+
+router
+  .route("/desiredVaccines")
+  .get(vaccineController.getDesiredVaccines)
+  .patch(vaccineController.fillDesiredVaccines);
 
 module.exports = router;

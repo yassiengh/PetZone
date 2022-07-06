@@ -19,7 +19,10 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, "Please provide a valid email"],
   },
-  profilePicture: String,
+  profilePicture: {
+    type: String,
+    default: "default.jpg",
+  },
   password: {
     type: String,
     required: [true, "Please provide a password"],
@@ -101,10 +104,10 @@ const userSchema = new mongoose.Schema({
     },
     workingHours: {
       startingHour: {
-        type: Number,
+        type: String,
       },
       finishingHour: {
-        type: Number,
+        type: String,
       },
       maxNumberClients: {
         type: Number,

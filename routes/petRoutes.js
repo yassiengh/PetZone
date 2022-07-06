@@ -10,12 +10,6 @@ router
   .post(authController.protect, petController.createPet);
 
 router
-  .route("/createVaccinationHistory")
-  .post(petController.createVaccinationHistory);
-
-router.route("/availableVaccines").get(petController.availableVaccines);
-
-router
   .route("/:id")
   .get(petController.getPet)
   .patch(petController.updatePet)
