@@ -16,7 +16,7 @@ const filterObj = (obj, ...allowedFields) => {
 };
 exports.getMe = catchAsync(async (req, res, next) => {
   console.log("C:\\Users\\yassi\\Desktop\\PetZone\\default.jpg");
-  const currentUser = await User.findById(req.user.id);
+  const currentUser = await User.findById(req.user.id).populate("POA.childPet");
   // sendfile(`${__dirname}/./default.jpg`).
   // res.status(200).json({
   //   data: {
