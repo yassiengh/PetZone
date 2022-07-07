@@ -25,7 +25,7 @@ exports.getMe = catchAsync(async (req, res, next) => {
   // });
   res
     .status(201)
-    .json({ status: "success" })
+    .json({ currentUser })
     .sendFile("C:\\Users\\yassi\\Desktop\\PetZone\\default.jpg");
 });
 exports.getAllUsers = catchAsync(async (req, res, next) => {
