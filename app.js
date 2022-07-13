@@ -8,7 +8,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
 const cookie_parser = require("cookie-parser");
-
+const compression = require("compression");
 const userRouter = require("./routes/userRoutes");
 const petRouter = require("./routes/petRoutes");
 const petAdouptionRouter = require("./routes/petAdoptionRoutes");
@@ -65,8 +65,7 @@ app.use(
   })
 );
 
-// Serving static files
-//app.use(express.static(`${__dirname}/public`))
+app.use(compression());
 
 // Test middleware
 app.use((req, res, next) => {

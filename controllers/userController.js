@@ -23,7 +23,7 @@ exports.getMe = catchAsync(async (req, res, next) => {
   //     currentUser,
   //   },
   // });
-  res.status(201).json({ currentUser });
+  res.status(200).json({ currentUser });
 });
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find().populate("POA.childPet");

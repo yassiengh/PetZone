@@ -67,7 +67,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
 exports.logout = catchAsync(async (req, res, next) => {
   res.cookie("jwt", "", { maxage: 1 });
-  res.redirect("/");
+  res.json({});
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -253,7 +253,7 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
     "host"
   )}/api/v1/users/emailVerfication/${verifyToken}`;
 
-  const message = `Please, Verify your Email from this Link! ${resetURL}`;
+  const message = `Please, Verify your Email using this code! ${verifyToken}`;
 
   try {
     await sendEmail({
@@ -267,6 +267,7 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
       message: "Token sent to email!",
     });
   } catch (err) {
+    console.log(err);
     user.emaiVerifyToken = undefined;
     user.emailVerifyExpires = undefined;
     user.verified = false;
