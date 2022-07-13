@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema({
   },
   nationalID: {
     type: String,
-    select: false,
+    default: "",
   },
   country: {
     type: String,
@@ -90,6 +90,10 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   verified: {
+    type: Boolean,
+    default: false,
+  },
+  verifiedNationalID: {
     type: Boolean,
     default: false,
   },

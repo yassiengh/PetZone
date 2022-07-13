@@ -4,6 +4,7 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
 exports.adoptPet = catchAsync(async (req, res, next) => {
+  console.log(req.params.id);
   const adoptedpet = await adoptedPets.findById(req.params.id);
   const currentUser = await user.findById(req.user._id);
   const petOwner = await user.find({ "POA.childPet": adoptedpet.id });
@@ -22,7 +23,7 @@ exports.adoptPet = catchAsync(async (req, res, next) => {
   adoptedpet.offerAdoption = false;
   await adoptedPets.findByIdAndUpdate(req.params.id, adoptedpet);
 
-  //push the adopted pet to the logged in user 
+  //push the adopted pet to the logged in user
   currentUser.POA.childPet.push(adoptedpet.id);
   currentUser.POA.numberOfPets = currentUser.POA.childPet.length;
   await user.findByIdAndUpdate(req.user._id, currentUser);

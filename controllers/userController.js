@@ -16,17 +16,14 @@ const filterObj = (obj, ...allowedFields) => {
 };
 exports.getMe = catchAsync(async (req, res, next) => {
   console.log("C:\\Users\\yassi\\Desktop\\PetZone\\default.jpg");
-  const currentUser = await User.findById(req.user.id);
+  const currentUser = await User.findById(req.user.id).populate("POA.childPet");
   // sendfile(`${__dirname}/./default.jpg`).
   // res.status(200).json({
   //   data: {
   //     currentUser,
   //   },
   // });
-  res
-    .status(201)
-    .json({ status: "success" })
-    .sendFile("C:\\Users\\yassi\\Desktop\\PetZone\\default.jpg");
+  res.status(201).json({ currentUser });
 });
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find().populate("POA.childPet");
@@ -98,9 +95,10 @@ exports.getAllVets = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
+exports.getUser = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  res.status(200).json({
+    user,
   });
-};
+});

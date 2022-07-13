@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.route("/updateLikeCounter").patch(forumsController.updateLikeCounter);
 router.route("/addComment").patch(forumsController.addComment);
+router.route("/reports").get(forumsController.getReports);
 
 router
   .route("/")

@@ -18,6 +18,7 @@ const vaccinationEnumRouter = require("./routes/vaccineEnumRoutes");
 const vaccinationRouter = require("./routes/vaccineRoutes");
 const forumsRouter = require("./routes/forumsRoutes");
 const bookingRouter = require("./routes/bookingRoutes");
+const adminDashboardRouter = require("./routes/adminDashboardRoutes");
 
 const app = express();
 
@@ -85,6 +86,7 @@ app.use("/api/v1/vaccinationDB", vaccinationEnumRouter);
 app.use("/api/v1/vaccination", vaccinationRouter);
 app.use("/api/v1/forums", forumsRouter);
 app.use("/api/v1/booking", bookingRouter);
+app.use("/api/v1/adminDashboard", adminDashboardRouter);
 // app.all("*", (req, res, next) => {
 //   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 // });

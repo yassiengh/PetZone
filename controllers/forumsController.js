@@ -71,3 +71,9 @@ exports.addComment = catchAsync(async (req, res, next) => {
   await forums.findByIdAndUpdate(req.body.postID, post);
   res.status(200).json({});
 });
+
+exports.getReports = catchAsync(async (req, res, next) => {
+  let reports = await forums.find();
+  reports = reports.filter((report) => report.categories.includes("report"));
+  res.status(200).json({ reports });
+});
