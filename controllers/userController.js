@@ -102,7 +102,6 @@ exports.getAllSortedServiceProvidersByDistance = catchAsync(
       "serviceProvider.type": `${req.body.type}`,
     });
     users = users.filter((user) => user.serviceProvider.location.latitude);
-    console.log(users);
     let userLat = req.body.latitude;
     let userLong = req.body.longitude;
     users.forEach((user) => {
