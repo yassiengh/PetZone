@@ -2,6 +2,7 @@ const User = require("./../models/userModel");
 const multer = require("multer");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
+const distanceCalculator = require("./../utils/distanceCalculator");
 
 const upload = multer({ dest: "public/img/users" });
 
@@ -94,6 +95,39 @@ exports.getAllVets = catchAsync(async (req, res, next) => {
     data: vets,
   });
 });
+
+exports.getAllSortedServiceProvidersByDistance = catchAsync(
+  async (req, res, next) => {
+    let users = await User.find({
+      "serviceProvider.type": `${req.body.type}`,
+    });
+    users = users.filter((user) => user.serviceProvider.location.latitude);
+    console.log(users);
+    let userLat = req.body.latitude;
+    let userLong = req.body.longitude;
+    users.forEach((user) => {
+      let d = distanceCalculator(
+        userLat,
+        userLong,
+        user.serviceProvider.location.latitude,
+        user.serviceProvider.location.longitude
+      );
+      user.serviceProvider.location["distance"] = d;
+    });
+
+    users.sort((a, b) => {
+      return (
+        a.serviceProvider.location.distance -
+        b.serviceProvider.location.distance
+      );
+    });
+
+    res.status(200).json({
+      results: users.length,
+      data: users,
+    });
+  }
+);
 
 exports.getUser = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.params.id);

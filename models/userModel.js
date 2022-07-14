@@ -130,6 +130,19 @@ const userSchema = new mongoose.Schema({
     landLine: {
       type: String,
     },
+    location: {
+      latitude: {
+        type: String,
+        default: "",
+      },
+      longitude: {
+        type: String,
+        default: "",
+      },
+      distance: {
+        type: Number,
+      },
+    },
     verificationDocuments: [
       {
         type: String,

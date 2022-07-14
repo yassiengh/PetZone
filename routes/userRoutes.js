@@ -21,7 +21,13 @@ router.patch(
 );
 
 router.get("/vets/loadVet/:id", bookingController.loadVet);
-router.get("/vets", userController.getAllVets);
+
+router.post(
+  "/userByDistance",
+  userController.getAllSortedServiceProvidersByDistance
+);
+router.route("/vets").get(userController.getAllVets);
+
 router.get("/me", authController.protect, userController.getMe);
 router.patch(
   "/updateMe",
