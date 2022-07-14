@@ -27,7 +27,7 @@ router.post(
   userController.getAllSortedServiceProvidersByDistance
 );
 router.route("/vets").get(userController.getAllVets);
-
+router.route("/appointments/:id").get(userController.getAllVetAppointment);
 router.get("/me", authController.protect, userController.getMe);
 router.patch(
   "/updateMe",

@@ -1,4 +1,5 @@
 const User = require("./../models/userModel");
+const VetAppointment = require("./../models/appointmentsModel");
 const multer = require("multer");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
@@ -93,6 +94,15 @@ exports.getAllVets = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     data: vets,
+  });
+});
+
+exports.getAllVetAppointment = catchAsync(async (req, res, next) => {
+  const appointments = await VetAppointment.find({
+    doctor: req.params.id,
+  });
+  res.status(200).json({
+    data: appointments,
   });
 });
 
