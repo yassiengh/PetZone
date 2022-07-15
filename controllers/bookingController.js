@@ -120,8 +120,9 @@ exports.loadVet = catchAsync(async (req, res, next) => {
 
 exports.bookVet = catchAsync(async (req, res, next) => {
   const { doctor, patient, day } = req.body;
-  let vetWorkingDays = await vetWorkingDays.find({ "workingDays.id": day });
-  console.log(vetWorkingDay);
+  // let vetWorkingDays = await vetWorkingDays.find({ "workingDays.id": day });
+  let a = await appointment.create(req.body);
+  res.status(200).json({ a });
   // await vetWorkingDays.findByIdAndUpdate(day,workingDays)
 });
 ("Fri Jul 06 2022 00:00:00 GMT+0200 (Eastern European Standard Time)");

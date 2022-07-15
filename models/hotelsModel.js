@@ -14,10 +14,10 @@ const hotelsSchema = new mongoose.Schema({
     default: "default.jpg",
   },
   latitude: {
-    type: String,
+    type: Number,
   },
   longitude: {
-    type: String,
+    type: Number,
   },
   distance: {
     type: Number,

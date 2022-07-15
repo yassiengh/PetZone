@@ -11,7 +11,10 @@ exports.createPost = catchAsync(async (req, res, next) => {
 });
 
 exports.getPost = catchAsync(async (req, res, next) => {
-  const post = await forums.findById(req.params.id).populate("owner");
+  const post = await forums
+    .findById(req.params.id)
+    .populate("owner")
+    .populate("comments.owner");
   res.status(200).json({
     status: "success",
     data: post,
@@ -19,7 +22,10 @@ exports.getPost = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllPosts = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(forums.find().populate("owner"), req.query)
+  const features = new APIFeatures(
+    forums.find().populate("owner").populate("comments.owner"),
+    req.query
+  )
     .filter()
     .sort()
     .limitFields()

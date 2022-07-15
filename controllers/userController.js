@@ -5,6 +5,22 @@ const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const distanceCalculator = require("./../utils/distanceCalculator");
 
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/img/users");
+  },
+  filename: (req, file, cb) => {
+    const ext = file.mimetype.split("/")[1];
+    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+  },
+});
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb(new AppError("Not an Image", 404), false);
+  }
+};
 const upload = multer({ dest: "public/img/users" });
 
 exports.uploadUserPhoto = upload.single("photo");
