@@ -58,7 +58,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   if (user.verified === false) {
-    return next(new AppError("Please active your email ", 402));
+    return next(new AppError("Please activate your email ", 402));
   }
 
   // 3) If everything ok, send token to client

@@ -14,6 +14,17 @@ const multerStorage = multer.diskStorage({
     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
   },
 });
+
+const multerStorageSignup = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/img/users");
+  },
+  filename: (req, file, cb) => {
+    const ext = file.mimetype.split("/")[1];
+    cb(null, `user-${req.body.email}-${Date.now()}.${ext}`);
+  },
+});
+
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -21,9 +32,14 @@ const multerFilter = (req, file, cb) => {
     cb(new AppError("Not an Image", 404), false);
   }
 };
-const upload = multer({ dest: "public/img/users" });
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+const uploadSignup = multer({
+  storage: multerStorageSignup,
+  fileFilter: multerFilter,
+});
 
 exports.uploadUserPhoto = upload.single("photo");
+exports.uploadUserPhotoSignup = uploadSignup.single("photo");
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -33,14 +49,8 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 exports.getMe = catchAsync(async (req, res, next) => {
-  console.log("C:\\Users\\yassi\\Desktop\\PetZone\\default.jpg");
   const currentUser = await User.findById(req.user.id).populate("POA.childPet");
-  // sendfile(`${__dirname}/./default.jpg`).
-  // res.status(200).json({
-  //   data: {
-  //     currentUser,
-  //   },
-  // });
+
   res.status(200).json({ currentUser });
 });
 exports.getAllUsers = catchAsync(async (req, res, next) => {
