@@ -1,8 +1,52 @@
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const Pet = require("../models/petModel");
 const PetOwner = require("../models/userModel");
 const APIFeatures = require("../utils/apiFeatures");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
+
+cloudinary.config({
+  cloud_name: "petzone",
+  api_key: "665311693884718",
+  api_secret: "ZkkQgzfKk4kcfeKVRkvZ3I8RpBw",
+});
+
+const multerStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    use_filename: true,
+    filename_override: function (req) {
+      console.log(req);
+      return `pet-${req.user.id}-${Date.now()}`;
+    },
+    folder: "pets",
+    unique_filename: false,
+  },
+});
+
+const multerStorageSignup = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    use_filename: true,
+    filename_override: function (req) {
+      return `pet-${req.body.petName}-${Date.now()}`;
+    },
+    folder: "pets",
+    unique_filename: false,
+  },
+});
+
+const upload = multer({ storage: multerStorage });
+
+const uploadSignup = multer({
+  storage: multerStorageSignup,
+});
+
+exports.uploadPetPhoto = upload.single("photo");
+
+exports.uploadPetPhotoSignup = uploadSignup.single("photo");
 
 exports.getAllPets = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(Pet.find(), req.query)
@@ -38,6 +82,9 @@ exports.getPet = catchAsync(async (req, res, next) => {
 });
 
 exports.createPet = catchAsync(async (req, res, next) => {
+  if (req.file) {
+    req.body.petProfilePic = req.file.path;
+  }
   const newPet = await Pet.create(req.body);
   const Petowner = await PetOwner.findById(req.user._id);
   Petowner.POA.childPet.push(newPet._id);
@@ -52,6 +99,9 @@ exports.createPet = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePet = catchAsync(async (req, res, next) => {
+  if (req.file) {
+    req.body.petProfilePic = req.file.path;
+  }
   const pet = await Pet.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,

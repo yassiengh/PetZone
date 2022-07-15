@@ -34,7 +34,11 @@ const petSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please tell us your Pet Description!"],
     },
-    petProfilePic: String,
+    petProfilePic: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/petzone/image/upload/v1657886693/pets/default.jpg",
+    },
     petPassport: String,
     petHealthCerificate: String,
     adopted: {

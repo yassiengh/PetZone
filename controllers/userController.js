@@ -13,51 +13,34 @@ cloudinary.config({
   api_secret: "ZkkQgzfKk4kcfeKVRkvZ3I8RpBw",
 });
 
-// var multerStorage = new CloudinaryStorage({
-//   cloudinary,
-//   folder: "images",
-//   allowedFormats: ["jpg", "png", "jpeg", "gid", "pdf"],
-//   filename: function (req, file, cb) {
-//     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`); // The file on cloudinary would have the same name as the original file name
-//   },
-// });
-
-// const multerStorageSignup = new CloudinaryStorage({
-//   cloudinary,
-//   folder: "images",
-//   allowedFormats: ["jpg", "png", "jpeg", "gid", "pdf"],
-//   filename: function (req, file, cb) {
-//     cb(null, `user-${req.body.email}.${ext}`); // The file on cloudinary would have the same name as the original file name
-//   },
-// });
-
-// const multerFilter = (req, file, cb) => {
-//   if (file.mimetype.startsWith("image")) {
-//     cb(null, true);
-//   } else {
-//     cb(new AppError("Not an Image", 404), false);
-//   }
-// };
-
-const m = new CloudinaryStorage({
+const multerStorage = new CloudinaryStorage({
   cloudinary,
-  folder: "images",
-  allowedFormats: ["jpg", "png", "jpeg", "gid", "pdf"],
-  filename: function (req, file, cb) {
-    cb(null, `user-sadadsadsa}`); // The file on cloudinary would have the same name as the original file name
+  params: {
+    use_filename: true,
+    filename_override: function (req) {
+      return `user-${req.user.id}`;
+    },
+    folder: "users",
+    unique_filename: false,
   },
 });
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public");
+const multerStorageSignup = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    use_filename: true,
+    filename_override: function (req) {
+      return `user-${req.body.email}`;
+    },
+    folder: "users",
+    unique_filename: false,
   },
 });
 
-const upload = multer({ storage: m });
+const upload = multer({ storage: multerStorage });
 
 const uploadSignup = multer({
-  // storage: m,
+  storage: multerStorageSignup,
 });
 
 exports.uploadUserPhoto = upload.single("photo");
@@ -90,7 +73,6 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-  console.log("hena");
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
@@ -114,7 +96,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     "serviceProvider"
   );
 
-  if (req.file) filteredBody.profilePicture = req.file.filename;
+  if (req.file) filteredBody.profilePicture = req.file.path;
 
   // 3) Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {

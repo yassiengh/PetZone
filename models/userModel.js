@@ -21,7 +21,8 @@ const userSchema = new mongoose.Schema({
   },
   profilePicture: {
     type: String,
-    default: "default.jpg",
+    default:
+      "https://res.cloudinary.com/petzone/image/upload/v1657885686/users/default.jpg",
   },
   password: {
     type: String,
