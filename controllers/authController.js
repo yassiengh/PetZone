@@ -38,6 +38,11 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
+  console.log(req.file);
+  if (req.file) {
+    const ext = req.file.mimetype.split("/")[1];
+    req.body.profilePicture = `user-${req.body.email}.${ext}`;
+  }
   const newUser = await User.create(req.body);
 
   createSendToken(newUser, 201, res);

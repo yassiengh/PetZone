@@ -5,11 +5,7 @@ const bookingController = require("./../controllers/bookingController");
 
 const router = express.Router();
 
-router.post(
-  "/signup",
-  userController.uploadUserPhotoSignup,
-  authController.signup
-);
+router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 router.post("/logout", authController.protect, authController.logout);
 router.post("/VerifyToken/:token", authController.VerifyToken);

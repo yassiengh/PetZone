@@ -1,44 +1,67 @@
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const User = require("./../models/userModel");
 const VetAppointment = require("./../models/appointmentsModel");
-const multer = require("multer");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const distanceCalculator = require("./../utils/distanceCalculator");
 
-const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/img/users");
-  },
-  filename: (req, file, cb) => {
-    const ext = file.mimetype.split("/")[1];
-    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+cloudinary.config({
+  cloud_name: "petzone",
+  api_key: "665311693884718",
+  api_secret: "ZkkQgzfKk4kcfeKVRkvZ3I8RpBw",
+});
+
+// var multerStorage = new CloudinaryStorage({
+//   cloudinary,
+//   folder: "images",
+//   allowedFormats: ["jpg", "png", "jpeg", "gid", "pdf"],
+//   filename: function (req, file, cb) {
+//     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`); // The file on cloudinary would have the same name as the original file name
+//   },
+// });
+
+// const multerStorageSignup = new CloudinaryStorage({
+//   cloudinary,
+//   folder: "images",
+//   allowedFormats: ["jpg", "png", "jpeg", "gid", "pdf"],
+//   filename: function (req, file, cb) {
+//     cb(null, `user-${req.body.email}.${ext}`); // The file on cloudinary would have the same name as the original file name
+//   },
+// });
+
+// const multerFilter = (req, file, cb) => {
+//   if (file.mimetype.startsWith("image")) {
+//     cb(null, true);
+//   } else {
+//     cb(new AppError("Not an Image", 404), false);
+//   }
+// };
+
+const m = new CloudinaryStorage({
+  cloudinary,
+  folder: "images",
+  allowedFormats: ["jpg", "png", "jpeg", "gid", "pdf"],
+  filename: function (req, file, cb) {
+    cb(null, `user-sadadsadsa}`); // The file on cloudinary would have the same name as the original file name
   },
 });
 
-const multerStorageSignup = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/img/users");
-  },
-  filename: (req, file, cb) => {
-    const ext = file.mimetype.split("/")[1];
-    cb(null, `user-${req.body.email}-${Date.now()}.${ext}`);
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public");
   },
 });
 
-const multerFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image")) {
-    cb(null, true);
-  } else {
-    cb(new AppError("Not an Image", 404), false);
-  }
-};
-const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+const upload = multer({ storage: m });
+
 const uploadSignup = multer({
-  storage: multerStorageSignup,
-  fileFilter: multerFilter,
+  // storage: m,
 });
 
 exports.uploadUserPhoto = upload.single("photo");
+
 exports.uploadUserPhotoSignup = uploadSignup.single("photo");
 
 const filterObj = (obj, ...allowedFields) => {
@@ -67,6 +90,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 exports.updateMe = catchAsync(async (req, res, next) => {
+  console.log("hena");
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
