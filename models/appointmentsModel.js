@@ -12,7 +12,7 @@ const appointmentsSchema = new mongoose.Schema({
   },
   day: {
     type: mongoose.Schema.ObjectId,
-    ref: "VetWorkingDays",
+    ref: "workingDays",
   },
 });
 

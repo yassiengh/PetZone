@@ -7,12 +7,8 @@ const vetWorkingDaysSchema = new mongoose.Schema({
   },
   workingDays: [
     {
-      date: {
-        type: String,
-      },
-      numberOfFreeAppointments: {
-        type: Number,
-      },
+      type: mongoose.Schema.ObjectId,
+      ref: "workingDays",
     },
   ],
 });
