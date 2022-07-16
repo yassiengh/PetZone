@@ -41,6 +41,8 @@ exports.signup = catchAsync(async (req, res, next) => {
   if (req.file) {
     req.body.profilePicture = req.file.path;
   }
+
+  req.body.serviceProvider = JSON.parse(req.body.serviceProvider);
   const newUser = await User.create(req.body);
 
   createSendToken(newUser, 201, res);

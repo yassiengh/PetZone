@@ -2,6 +2,7 @@ const express = require("express");
 const userController = require("./../controllers/userController");
 const authController = require("./../controllers/authController");
 const bookingController = require("./../controllers/bookingController");
+const ratingsController = require("./../controllers/ratingsController");
 
 const router = express.Router();
 
@@ -39,6 +40,8 @@ router.patch(
   userController.uploadUserPhoto,
   userController.updateMe
 );
+
+router.route("/rate").post(ratingsController.rateProvider);
 
 router.delete("/deleteMe", authController.protect, userController.deleteMe);
 router.route("/").get(userController.getAllUsers);
