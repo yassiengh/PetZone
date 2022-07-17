@@ -43,10 +43,9 @@ exports.signup = catchAsync(async (req, res, next) => {
   }
 
   if (req.body.serviceProvider) {
+
     req.body.serviceProvider = JSON.parse(req.body.serviceProvider);
-    req.body.serviceProvider.offDays = JSON.parse(
-      req.body.serviceProvider.offDays
-    );
+
   }
   const newUser = await User.create(req.body);
 
