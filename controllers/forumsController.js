@@ -1,9 +1,11 @@
 const forums = require("../models/forumsModel");
 const catchAsync = require("../utils/catchAsync");
 const APIFeatures = require("../utils/apiFeatures");
+const AppError = require("../utils/appError");
 
 exports.createPost = catchAsync(async (req, res, next) => {
   const newPost = await forums.create(req.body);
+
   res.status(200).json({
     status: "success",
     data: { newPost },
@@ -15,6 +17,7 @@ exports.getPost = catchAsync(async (req, res, next) => {
     .findById(req.params.id)
     .populate("owner")
     .populate("comments.owner");
+
   res.status(200).json({
     status: "success",
     data: post,
@@ -43,6 +46,7 @@ exports.updatePost = catchAsync(async (req, res, next) => {
     new: true,
     runValidators: true,
   });
+
   res.status(200).json({
     status: "success",
     data: post,
@@ -51,7 +55,12 @@ exports.updatePost = catchAsync(async (req, res, next) => {
 
 exports.updateLikeCounter = catchAsync(async (req, res, next) => {
   let post = await forums.findById(req.query.id);
-  console.log(post);
+
+  if (post.upvoters.includes(req.body.upvoterID))
+    return next(new AppError("User already upvoted this post", 404));
+  if (post.downvoters.includes(req.body.upvoterID))
+    return next(new AppError("cant upvote and downvote the same post", 404));
+
   post.upvotes = post.upvotes + 1;
   let array = post.upvoters;
   array.push(req.body.upvoterID);
@@ -61,8 +70,46 @@ exports.updateLikeCounter = catchAsync(async (req, res, next) => {
   res.status(200).json({});
 });
 
+exports.removeLike = catchAsync(async (req, res, next) => {
+  let post = await forums.findById(req.query.id);
+  if (post.upvotes > 0) post.upvotes = post.upvotes - 1;
+
+  post.upvoters = post.upvoters.filter((voter) => voter != req.body.userID);
+  await forums.findByIdAndUpdate(req.query.id, post);
+
+  res.status(200).json({});
+});
+
+exports.updateDislikeCounter = catchAsync(async (req, res, next) => {
+  let post = await forums.findById(req.query.id);
+
+  if (post.downvoters.includes(req.body.downvoterID))
+    return next(new AppError("User already downvoted this post", 404));
+  if (post.upvoters.includes(req.body.downvoterID))
+    return next(new AppError("cant upvote and downvote the same post", 404));
+
+  post.downvotes = post.downvotes + 1;
+  let array = post.downvoters;
+  array.push(req.body.downvoterID);
+  post.downvoters = array;
+  await forums.findByIdAndUpdate(req.query.id, post);
+
+  res.status(200).json({});
+});
+
+exports.removeDislike = catchAsync(async (req, res, next) => {
+  let post = await forums.findById(req.query.id);
+  if (post.downvotes > 0) post.downvotes = post.downvotes - 1;
+
+  post.downvoters = post.downvoters.filter((voter) => voter != req.body.userID);
+  await forums.findByIdAndUpdate(req.query.id, post);
+
+  res.status(200).json({});
+});
+
 exports.deletePost = catchAsync(async (req, res, next) => {
   await forums.findByIdAndDelete(req.params.id);
+
   res.status(200).json({});
 });
 
@@ -75,11 +122,13 @@ exports.addComment = catchAsync(async (req, res, next) => {
   array.push(comment);
   post.comments = array;
   await forums.findByIdAndUpdate(req.body.postID, post);
+
   res.status(200).json({});
 });
 
 exports.getReports = catchAsync(async (req, res, next) => {
   let reports = await forums.find().populate("owner");
   reports = reports.filter((report) => report.categories.includes("report"));
+
   res.status(200).json({ reports });
 });

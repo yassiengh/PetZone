@@ -16,6 +16,14 @@ const ratingsSchema = new mongoose.Schema({
     enum: [1, 2, 3, 4, 5],
     required: true,
   },
+  date: {
+    type: String,
+    required: true,
+  },
+  mostRecent: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const ratings = mongoose.model("ratings", ratingsSchema);

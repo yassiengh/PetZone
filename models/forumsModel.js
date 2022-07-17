@@ -25,7 +25,20 @@ const forumsSchema = new mongoose.Schema({
   upvoters: {
     type: [
       {
-        type: String,
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+      },
+    ],
+  },
+  downvotes: {
+    type: Number,
+    defualt: 0,
+  },
+  downvoters: {
+    type: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
       },
     ],
   },

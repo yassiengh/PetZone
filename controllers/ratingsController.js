@@ -9,15 +9,24 @@ exports.rateProvider = catchAsync(async (req, res, next) => {
   const alreadyReviewed = await ratings.find({
     user,
     serviceProvider,
+    mostRecent: true,
   });
 
-  if (alreadyReviewed.length != 0)
-    next(new AppError("User already reviewed this provider", 404));
+  // if a review already exists
+  if (alreadyReviewed.length != 0) {
+    mostRecentRatingID = alreadyReviewed[0].id;
+    await ratings.findByIdAndUpdate(mostRecentRatingID, { mostRecent: false });
+  }
+
+  let today = new Date();
+  req.body.date = today;
 
   await ratings.create(req.body);
 
-  //   const provider = await user.findById(providerID);
-  const providerReviews = await ratings.find({ serviceProvider });
+  const providerReviews = await ratings.find({
+    serviceProvider,
+    mostRecent: true,
+  });
 
   let totalRatings = 0;
   providerReviews.forEach((rating) => {
