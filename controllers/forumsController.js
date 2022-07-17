@@ -79,7 +79,7 @@ exports.addComment = catchAsync(async (req, res, next) => {
 });
 
 exports.getReports = catchAsync(async (req, res, next) => {
-  let reports = await forums.find();
+  let reports = await forums.find().populate("owner");
   reports = reports.filter((report) => report.categories.includes("report"));
   res.status(200).json({ reports });
 });
