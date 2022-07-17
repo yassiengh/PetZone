@@ -121,7 +121,7 @@ const userSchema = new mongoose.Schema({
     offDays: [
       {
         type: String,
-        enum: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        // enum: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
       },
     ],
     ratePerHour: {
