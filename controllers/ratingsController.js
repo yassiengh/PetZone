@@ -4,7 +4,7 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
 exports.rateProvider = catchAsync(async (req, res, next) => {
-  const { user, serviceProvider, rating } = req.body;
+  const { user, serviceProvider } = req.body;
 
   const alreadyReviewed = await ratings.find({
     user,

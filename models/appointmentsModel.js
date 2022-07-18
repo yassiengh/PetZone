@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 const User = require("./userModel");
 
 const appointmentsSchema = new mongoose.Schema({
-  doctor: {
+  serviceProvider: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
   },
-  patient: {
+  user: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
   },

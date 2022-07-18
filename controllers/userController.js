@@ -131,7 +131,7 @@ exports.getAllVets = catchAsync(async (req, res, next) => {
 
 exports.getAllVetAppointment = catchAsync(async (req, res, next) => {
   const appointments = await VetAppointment.find({
-    doctor: req.params.id,
+    serviceProvider: req.params.id,
   })
     .populate("patient")
     .populate("day");

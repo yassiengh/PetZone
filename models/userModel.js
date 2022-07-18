@@ -126,7 +126,7 @@ const userSchema = new mongoose.Schema({
     ],
     ratePerHour: {
       type: Number,
-      default: 0,
+      required: true,
     },
     landLine: {
       type: String,
@@ -134,11 +134,11 @@ const userSchema = new mongoose.Schema({
     location: {
       latitude: {
         type: String,
-        default: "",
+        required: true,
       },
       longitude: {
         type: String,
-        default: "",
+        required: true,
       },
       distance: {
         type: Number,
@@ -157,15 +157,10 @@ userSchema.pre("save", function (next) {
     if (
       this.serviceProvider.type == undefined ||
       this.serviceProvider.workingHours.finishingHour == undefined ||
-      this.serviceProvider.workingHours.startingHour == undefined
-    ) {
-      return next(new AppError("Service provider data missing", 400));
-    }
-    if (
-      this.serviceProvider.type == "Vet" &&
+      this.serviceProvider.workingHours.startingHour == undefined ||
       this.serviceProvider.workingHours.maxNumberClients == undefined
     ) {
-      return next(new AppError("Vet data missing", 400));
+      return next(new AppError("Service provider data missing", 400));
     }
   }
   next();

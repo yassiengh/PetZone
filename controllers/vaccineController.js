@@ -28,6 +28,7 @@ exports.createVaccinationHistory = catchAsync(async (req, res, next) => {
   });
 });
 
+// check functionality
 exports.availableVaccines = catchAsync(async (req, res) => {
   var rawData = "";
   const promise = () => {

@@ -1,19 +1,23 @@
 const appointment = require("../models/appointmentsModel");
-const vetWorkingDays = require("../models/vetWorkingDaysModel");
+const userWorkingDays = require("../models/userWorkingDaysModel");
 const User = require("../models/userModel");
 const Days = require("../models/workingDaysModel");
 const APIFeatures = require("../utils/apiFeatures");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
-exports.loadVet = catchAsync(async (req, res, next) => {
-  const vet = await User.findById(req.params.id);
-  const offDays = vet.serviceProvider.offDays;
-  let schedule = await vetWorkingDays
-    .find({ doctor: req.params.id })
+exports.loadServiceProvider = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (user.role == "pet owner")
+    return next(new AppError("users cant be booked", 404));
+
+  const offDays = user.serviceProvider.offDays;
+  let schedule = await userWorkingDays
+    .find({ serviceProvider: req.params.id })
     .populate("workingDays");
 
-  // Map to remove Offdays
+  // Map with off days indices
   let offDaysMap = new Map();
   offDaysMap.set("Sun", 0);
   offDaysMap.set("Mon", 1);
@@ -22,6 +26,7 @@ exports.loadVet = catchAsync(async (req, res, next) => {
   offDaysMap.set("Thu", 4);
   offDaysMap.set("Fri", 5);
   offDaysMap.set("Sat", 6);
+  //populate offdays indices
   let offDaysIndex = offDays.map((day) => {
     return offDaysMap.get(day);
   });
@@ -32,14 +37,16 @@ exports.loadVet = catchAsync(async (req, res, next) => {
   let day = today.getDate();
   let month = today.getMonth() + 1;
   let year = today.getFullYear();
+  // get a day with only year,month,day and no hours or minutes
   let todayWithNoHours = new Date(year, month - 1, day);
-  // First time loading vet profile, fill all booking slots
+
+  // First time loading user profile, fill all booking slots
   if (schedule.length === 0) {
     for (let i = 0; i < 7; i++) {
       let date = new Date(year, month - 1, day + i);
       let workingDay = {
         date,
-        numberOfFreeAppointments: vet.serviceProvider.ratePerHour,
+        numberOfFreeAppointments: user.serviceProvider.ratePerHour,
       };
       let newDay = await Days.create(workingDay);
       array.push(newDay);
@@ -54,50 +61,56 @@ exports.loadVet = catchAsync(async (req, res, next) => {
     });
     array = array.filter((day) => day.date != "0");
 
-    object = { doctor: req.params.id, workingDays: array };
+    object = { serviceProvider: req.params.id, workingDays: array };
 
     array = array.map((day) => {
       return day.id;
     });
 
-    document = { doctor: req.params.id, workingDays: array };
+    document = { serviceProvider: req.params.id, workingDays: array };
 
-    await vetWorkingDays.create(document);
+    await userWorkingDays.create(document);
   }
-  // not first time loading vet profile, check for past (irrelevant slots) and make new ones for the future
+  // not first time loading user profile, check for past ("expired" slots) and make new ones for the future
   else {
     let workingDays = schedule[0].workingDays;
 
+    //Keep current and newer dates
     workingDays = workingDays.filter(
       (day) => new Date(day.date) >= todayWithNoHours
     );
+
+    // if all days in the DB are in the past and removed
     let lengthWorkingDays = workingDays.length;
-    // if all days in the DB are in the past
     if (lengthWorkingDays == 0) {
       for (let i = 0; i < 7; i++) {
         let date = new Date(year, month - 1, day + i);
         let workingDay = {
           date,
-          numberOfFreeAppointments: vet.serviceProvider.ratePerHour,
+          numberOfFreeAppointments: user.serviceProvider.ratePerHour,
         };
         array.push(workingDay);
       }
-      object = { doctor: req.params.id, workingDays: array };
+      object = { serviceProvider: req.params.id, workingDays: array };
     }
 
-    // add new missing dates if not duplicate
+    // **add new missing dates if not duplicate**
+
+    // add current dates as strings for comparison later
     let dates = [];
     workingDays.forEach((d) => dates.push(JSON.stringify(new Date(d.date))));
+
     for (let i = lengthWorkingDays; i < 7; i++) {
       let newdate = new Date(year, month - 1, day + i);
       if (!dates.includes(JSON.stringify(newdate))) {
         workingDays.push({
           date: new Date(year, month - 1, day + i),
-          numberOfFreeAppointments: vet.serviceProvider.ratePerHour,
+          numberOfFreeAppointments: user.serviceProvider.ratePerHour,
         });
       }
     }
 
+    // filter offDays
     workingDays.forEach((day) => {
       let currentDay = new Date(day.date);
       let dayIndex = currentDay.getDay();
@@ -113,7 +126,7 @@ exports.loadVet = catchAsync(async (req, res, next) => {
       daysID.push(newDay.id);
     }
 
-    await vetWorkingDays.findByIdAndUpdate(
+    await userWorkingDays.findByIdAndUpdate(
       schedule[0]._id,
       { workingDays: daysID },
       {
@@ -121,26 +134,31 @@ exports.loadVet = catchAsync(async (req, res, next) => {
         runValidators: true,
       }
     );
-    object = { doctor: req.params.id, workingDays };
+    object = { serviceProvider: req.params.id, workingDays };
   }
 
   res.status(200).json({
     data: object,
-    vet,
+    user,
   });
 });
 
-exports.bookVet = catchAsync(async (req, res, next) => {
-  const { doctor, patient, day } = req.body;
+exports.bookServiceProvider = catchAsync(async (req, res, next) => {
+  const { serviceProvider, user, day } = req.body;
   let selectedDay = await Days.findById(day);
+  if (!selectedDay) {
+    return next(new AppError("this day doesnt exist", 404));
+  }
   // check if appointment already exists
   let app = await appointment.find({
-    doctor: doctor,
-    patient: patient,
+    serviceProvider: serviceProvider,
+    user: user,
     day: day,
   });
-  if (app) next(new AppError("an appointment already exists on that day", 404));
-  console.log(selectedDay.numberOfAppointments);
+  console.log(app);
+  if (app.length != 0)
+    return next(new AppError("an appointment already exists on that day", 404));
+
   await Days.findByIdAndUpdate(day, {
     numberOfFreeAppointments: selectedDay.numberOfFreeAppointments - 1,
   });
@@ -149,7 +167,32 @@ exports.bookVet = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: "success" });
 });
 
+exports.cancelBooking = catchAsync(async (req, res, next) => {
+  const { serviceProvider, user, day } = req.body;
+
+  let selectedDay = await Days.findById(day);
+  console.log(selectedDay);
+  if (selectedDay.length == 0)
+    return next(new AppError("Cant find this appointment", 404));
+
+  let provider = await User.findById(serviceProvider);
+  let newAppointmentsCounter = selectedDay.numberOfFreeAppointments + 1;
+  if (newAppointmentsCounter <= provider.serviceProvider.ratePerHour) {
+    await Days.findByIdAndUpdate(day, {
+      numberOfFreeAppointments: newAppointmentsCounter,
+    });
+  }
+  await appointment.findOneAndDelete({ day, serviceProvider, user });
+
+  res.status(200).json({ status: "success" });
+});
+
 exports.deleteDays = catchAsync(async (req, res, next) => {
   await Days.deleteMany();
+  res.status(200).json({});
+});
+
+exports.deleteAppointments = catchAsync(async (req, res, next) => {
+  await appointment.deleteMany();
   res.status(200).json({});
 });

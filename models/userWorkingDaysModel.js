@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 // const User = require("./userModel");
-const vetWorkingDaysSchema = new mongoose.Schema({
-  doctor: {
+const userWorkingDaysSchema = new mongoose.Schema({
+  serviceProvider: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
   },
@@ -13,5 +13,8 @@ const vetWorkingDaysSchema = new mongoose.Schema({
   ],
 });
 
-const VetWorkingDays = mongoose.model("VetWorkingDays", vetWorkingDaysSchema);
-module.exports = VetWorkingDays;
+const userWorkingDays = mongoose.model(
+  "userWorkingDays",
+  userWorkingDaysSchema
+);
+module.exports = userWorkingDays;

@@ -25,7 +25,10 @@ router.patch(
   authController.updatePassword
 );
 
-router.get("/vets/loadVet/:id", bookingController.loadVet);
+router.get(
+  "/vets/loadserviceProvider/:id",
+  bookingController.loadServiceProvider
+);
 
 router.post(
   "/userByDistance",
