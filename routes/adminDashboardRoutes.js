@@ -6,24 +6,24 @@ const router = express.Router();
 router
   .route("/verifynationalID/:id")
   .patch(
-    authController.restrictTo("admin"),adminDashboardController.verifyUserNationalID);
+    authController.protect,authController.restrictTo("admin"),adminDashboardController.verifyUserNationalID);
 
 router
   .route("/verifyNationalID")
-  .get(authController.restrictTo("admin"),adminDashboardController.getAllUsersWaitingForIDVerification);
+  .get(authController.protect,authController.restrictTo("admin"),adminDashboardController.getAllUsersWaitingForIDVerification);
 
 router
   .route("/userReports/banUser/:id")
-  .patch(authController.restrictTo("admin"),adminDashboardController.banAccountUsingId);
+  .patch(authController.protect,authController.restrictTo("admin"),adminDashboardController.banAccountUsingId);
 
 router
   .route("/userReports/:id")
-  .get(authController.restrictTo("admin"),adminDashboardController.getReport)
+  .get(authController.protect,authController.restrictTo("admin"),adminDashboardController.getReport)
   .patch(authController.restrictTo("admin"),adminDashboardController.banAccountUsingReport);
 
 router
   .route("/userReports")
-  .get(authController.restrictTo("admin"),adminDashboardController.getUserReports)
+  .get(authController.protect,authController.restrictTo("admin"),adminDashboardController.getUserReports)
   .post(adminDashboardController.createUserReport);
 
 module.exports = router;
