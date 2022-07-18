@@ -196,3 +196,13 @@ exports.deleteAppointments = catchAsync(async (req, res, next) => {
   await appointment.deleteMany();
   res.status(200).json({});
 });
+
+exports.AllUserSpAppointments = catchAsync(async (req, res, next) => {
+  const { user, serviceProvider } = req.body;
+
+  if (!user || !serviceProvider) return next(new AppError("Missing IDs", 404));
+
+  let appointments = await appointment.find({ user, serviceProvider });
+
+  res.status(200).json({ appointments: appointments });
+});

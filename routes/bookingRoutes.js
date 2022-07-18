@@ -11,5 +11,8 @@ router.route("/days").delete(bookingController.deleteDays);
 router
   .route("/deleteAppointments")
   .delete(bookingController.deleteAppointments);
+router
+  .route("/AllUserSpAppointments")
+  .get(bookingController.AllUserSpAppointments);
 
 module.exports = router;

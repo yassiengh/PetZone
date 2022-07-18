@@ -95,9 +95,9 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     "phoneNumber",
     "serviceProvider"
   );
-    
-  if (req.file) filteredBody.profilePicture = req.file.path;  
-  if (req.body.email) filteredBody.verified = false;  
+
+  if (req.file) filteredBody.profilePicture = req.file.path;
+  if (req.body.email) filteredBody.verified = false;
   // 3) Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
@@ -129,11 +129,11 @@ exports.getAllVets = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAllVetAppointment = catchAsync(async (req, res, next) => {
+exports.getAllProviderAppointments = catchAsync(async (req, res, next) => {
   const appointments = await VetAppointment.find({
     serviceProvider: req.params.id,
   })
-    .populate("patient")
+    .populate("user")
     .populate("day");
 
   res.status(200).json({
