@@ -45,6 +45,7 @@ const forumsSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
+    required: true,
   },
   comments: [
     {

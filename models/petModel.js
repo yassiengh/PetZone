@@ -69,7 +69,7 @@ const petSchema = new mongoose.Schema(
         },
         lastTimeTaken: {
           type: String,
-          default: 0,
+          default: "",
         },
       },
     ],
@@ -81,7 +81,7 @@ const petSchema = new mongoose.Schema(
         },
         timeRemaining: {
           type: String,
-          default: 0,
+          default: "",
         },
       },
     ],
