@@ -124,8 +124,10 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 exports.restrictTo = (...roles) => {
+  
   return (req, res, next) => {
     // roles ['admin', 'lead-guide']. role='user'
+    console.log(req.user.role)
     if (!roles.includes(req.user.role)) {
       return next(
         new AppError("You do not have permission to perform this action", 403)
@@ -235,14 +237,18 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
     return next(new AppError("Your current password is wrong.", 401));
   }
+  // 3) Check if POSTed current password is equial to the new password
+  if ((await user.correctPassword(req.body.password, user.password))) {
+    return next(new AppError("New password can not be the same as your current password.", 401));
+  }
 
-  // 3) If so, update password
+  // 4) If so, update password
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
   // User.findByIdAndUpdate will NOT work as intended!
 
-  // 4) Log user in, send JWT
+  // 5) Log user in, send JWT
   createSendToken(user, 200, res);
 });
 

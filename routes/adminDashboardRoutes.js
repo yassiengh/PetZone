@@ -1,28 +1,29 @@
 const express = require("express");
 const adminDashboardController = require("../controllers/adminDashboardController");
-
+const authController = require("../controllers/authController");
 const router = express.Router();
 
 router
   .route("/verifynationalID/:id")
-  .patch(adminDashboardController.verifyUserNationalID);
+  .patch(
+    authController.restrictTo("admin"),adminDashboardController.verifyUserNationalID);
 
 router
   .route("/verifyNationalID")
-  .get(adminDashboardController.getAllUsersWaitingForIDVerification);
+  .get(authController.restrictTo("admin"),adminDashboardController.getAllUsersWaitingForIDVerification);
 
 router
   .route("/userReports/banUser/:id")
-  .patch(adminDashboardController.banAccountUsingId);
+  .patch(authController.restrictTo("admin"),adminDashboardController.banAccountUsingId);
 
 router
   .route("/userReports/:id")
-  .get(adminDashboardController.getReport)
-  .patch(adminDashboardController.banAccountUsingReport);
+  .get(authController.restrictTo("admin"),adminDashboardController.getReport)
+  .patch(authController.restrictTo("admin"),adminDashboardController.banAccountUsingReport);
 
 router
   .route("/userReports")
-  .get(adminDashboardController.getUserReports)
+  .get(authController.restrictTo("admin"),adminDashboardController.getUserReports)
   .post(adminDashboardController.createUserReport);
 
 module.exports = router;

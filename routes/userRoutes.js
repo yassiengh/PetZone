@@ -31,8 +31,8 @@ router.post(
   "/userByDistance",
   userController.getAllSortedServiceProvidersByDistance
 );
-router.route("/vets").get(userController.getAllVets);
-router.route("/appointments/:id").get(userController.getAllVetAppointment);
+router.route("/vets").get(authController.protect,authController.restrictTo("admin"),userController.getAllVets);
+router.route("/appointments/:id").get(authController.protect,userController.getAllVetAppointment);
 router.get("/me", authController.protect, userController.getMe);
 router.patch(
   "/updateMe",
@@ -41,10 +41,10 @@ router.patch(
   userController.updateMe
 );
 
-router.route("/rate").post(ratingsController.rateProvider);
+router.route("/rate").post(authController.restrictTo("pet owner"),ratingsController.rateProvider);
 
 router.delete("/deleteMe", authController.protect, userController.deleteMe);
-router.route("/").get(userController.getAllUsers);
+router.route("/").get(authController.protect,authController.restrictTo("admin"),userController.getAllUsers);
 router.route("/:id").get(userController.getUser);
 
 module.exports = router;

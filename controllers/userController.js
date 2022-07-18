@@ -95,9 +95,9 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     "phoneNumber",
     "serviceProvider"
   );
-
-  if (req.file) filteredBody.profilePicture = req.file.path;
-
+    
+  if (req.file) filteredBody.profilePicture = req.file.path;  
+  if (req.body.email) filteredBody.verified = false;  
   // 3) Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
