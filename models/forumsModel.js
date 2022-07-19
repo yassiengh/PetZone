@@ -6,6 +6,11 @@ const forumsSchema = new mongoose.Schema({
     type: String,
     required: [true, "A post must have a Title!"],
   },
+  picture: {
+    type: String,
+    default:
+      "https://res.cloudinary.com/petzone/image/upload/v1658209944/forums/injureddefaultjpg.png",
+  },
   text: {
     type: String,
     required: [true, "A post must have Text"],

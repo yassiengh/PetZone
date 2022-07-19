@@ -13,6 +13,14 @@ cloudinary.config({
   api_secret: "ZkkQgzfKk4kcfeKVRkvZ3I8RpBw",
 });
 
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb(new AppError("Not an image! Please upload only images.", 400), false);
+  }
+};
+
 const multerStorage = new CloudinaryStorage({
   cloudinary,
   params: {
@@ -37,10 +45,11 @@ const multerStorageSignup = new CloudinaryStorage({
   },
 });
 
-const upload = multer({ storage: multerStorage });
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 
 const uploadSignup = multer({
   storage: multerStorageSignup,
+  fileFilter: multerFilter,
 });
 
 exports.uploadUserPhoto = upload.single("photo");
