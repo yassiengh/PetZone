@@ -21,6 +21,7 @@ exports.adoptPet = catchAsync(async (req, res, next) => {
   //update the offer adoption
   adoptedpet.adopted = true;
   adoptedpet.offerAdoption = false;
+  adoptedpet.offerBreeding = false;
   await adoptedPets.findByIdAndUpdate(req.params.id, adoptedpet);
 
   //push the adopted pet to the logged in user
