@@ -1,9 +1,46 @@
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const forums = require("../models/forumsModel");
 const catchAsync = require("../utils/catchAsync");
 const APIFeatures = require("../utils/apiFeatures");
 const AppError = require("../utils/appError");
 
+cloudinary.config({
+  cloud_name: "petzone",
+  api_key: "665311693884718",
+  api_secret: "ZkkQgzfKk4kcfeKVRkvZ3I8RpBw",
+});
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb(new AppError("Not an image! Please upload only images.", 400), false);
+  }
+};
+
+const multerStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    use_filename: true,
+    filename_override: function (req) {
+      return `forums-${req.user.id}-${new Date().getTime().toString()}`;
+    },
+    folder: "forums",
+    unique_filename: false,
+  },
+});
+
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+exports.uploadForumPhoto = upload.single("photo");
+
 exports.createPost = catchAsync(async (req, res, next) => {
+  let cat = JSON.parse(req.body.categories);
+  req.body.categories = cat;
+  if (req.file) {
+    req.body.picture = req.file.path;
+  }
   const newPost = await forums.create(req.body);
 
   res.status(200).json({

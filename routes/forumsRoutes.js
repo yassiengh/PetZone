@@ -1,5 +1,6 @@
 const express = require("express");
 const forumsController = require("../controllers/forumsController");
+const authController = require("../controllers/authController");
 
 const router = express.Router();
 
@@ -14,7 +15,11 @@ router.route("/reports").get(forumsController.getReports);
 
 router
   .route("/")
-  .post(forumsController.createPost)
+  .post(
+    authController.protect,
+    forumsController.uploadForumPhoto,
+    forumsController.createPost
+  )
   .get(forumsController.getAllPosts);
 
 router
